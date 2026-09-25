@@ -1,7 +1,12 @@
 @import "tailwindcss";
 
+/*
+ * Herramienta interna de uso diario: tema claro fijo (sin seguir
+ * prefers-color-scheme) para que sea legible en cualquier condicion,
+ * y para no duplicar estilos en dos temas sin necesidad real.
+ */
 :root {
-  --background: #ffffff;
+  --background: #f9fafb;
   --foreground: #171717;
 }
 
@@ -10,13 +15,6 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {

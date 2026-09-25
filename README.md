@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Recorridos Vighi
 
-## Getting Started
+App para que los cadetes registren en tiempo real su recorrido por
+sanatorios (muestras traídas, avisos urgentes) y para que el labo lo
+vea en vivo desde un dashboard.
 
-First, run the development server:
+Este repo es solo el **frontend**. Habla por API con el Worker de
+Cloudflare del repo [`vighi-stock-worker`](https://github.com/tiagobacasv/vighi-stock-worker)
+(carpeta `src/routes/recorridos.ts` ahí), que ya tiene el catálogo de
+sanatorios, usuarios/roles y toda la lógica de negocio.
+
+## Stack
+
+- **Next.js (App Router)**, exportado como sitio **estático**
+  (`output: "export"` en `next.config.ts`) — no corre Node en el
+  servidor, se sube por FTP como cualquier página del sitio.
+- **Tailwind CSS** para estilos.
+- Auth por token (JWT) contra el Worker, guardado en `localStorage`
+  (mismo patrón que usa WebStock, con claves distintas para no
+  pisarse: `vr_token` / `vr_user`).
+
+## Por qué exportación estática (no Vercel, no Cloudflare Pages)
+
+Esta app no necesita renderizado en el servidor ni rutas de API
+propias — toda la lógica vive en el Worker y el frontend solo hace
+`fetch()`. Eso permite compilarla como archivos estáticos y subirla al
+mismo hosting FTP que ya usa el resto del sitio, sin infraestructura
+nueva que aprender ni mantener.
+
+## Desarrollo local
 
 ```bash
+npm install
+cp .env.example .env.local   # completar con la URL del Worker
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abrir [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Build para subir por FTP
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+```
 
-## Learn More
+Esto genera la carpeta `out/`. Su contenido se sube **completo** a la
+carpeta `/recorridos` del hosting (mismo nivel que `WebStock/` en el
+sitio principal). La app vive en `https://susanavighi.com.ar/recorridos/`.
 
-To learn more about Next.js, take a look at the following resources:
+Importante: `basePath` y `assetPrefix` en `next.config.ts` están
+fijados a `/recorridos` — si el subdirectorio de destino cambia algún
+día, hay que actualizar eso ahí.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Estructura
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+src/
+  app/
+    login/       - login (redirige segun rol: cadete o staff)
+    cadete/      - pool de paradas del dia, tomar/realizar/no-realizar
+    dashboard/   - vista en vivo para el labo, generar paradas del dia
+  lib/
+    api.ts       - fetch autenticado + manejo de sesion
+    types.ts     - tipos compartidos (Parada, Sanatorio, etc.)
+```
 
-## Deploy on Vercel
+## PWA
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Instalable desde el celular ("Agregar a pantalla de inicio"). El
+manifest y los íconos están en `public/`; si cambia la marca, son los
+archivos a reemplazar (`icon-192.png`, `icon-512.png`, `manifest.json`).
