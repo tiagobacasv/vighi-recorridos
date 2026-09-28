@@ -62,15 +62,6 @@ export default function CadetePage() {
     return () => clearInterval(interval);
   }, [user, cargar]);
 
-  async function tomar(id: number) {
-    try {
-      await apiFetch(`/paradas/${id}/tomar`, { method: "POST" });
-      await cargar(true);
-    } catch {
-      await cargar(true);
-    }
-  }
-
   function cerrarModal() {
     setSeleccionada(null);
     setModo(null);
@@ -83,13 +74,15 @@ export default function CadetePage() {
 
   if (!user || user.rol !== "CADETE") return null;
 
+  // Tocar una parada disponible abre directo el formulario de
+  // realizar/no-realizar: esa misma accion reclama y completa la parada
+  // en un solo paso (ver PUT /paradas/:id/realizar en el Worker).
   const disponibles = paradas.filter(
-    (p) => p.estado === "PENDIENTE" && p.idCadete === null && (p.sanatorio.tipoVisita === "RUTINA" || p.confirmadaAt !== null)
+    (p) => p.estado === "PENDIENTE" && (p.sanatorio.tipoVisita === "RUTINA" || p.confirmadaAt !== null)
   );
   const esperandoAviso = paradas.filter(
-    (p) => p.estado === "PENDIENTE" && p.idCadete === null && p.sanatorio.tipoVisita === "A_DEMANDA" && p.confirmadaAt === null
+    (p) => p.estado === "PENDIENTE" && p.sanatorio.tipoVisita === "A_DEMANDA" && p.confirmadaAt === null
   );
-  const mias = paradas.filter((p) => p.estado === "PENDIENTE" && p.idCadete === user.id);
   const completadas = paradas.filter((p) => p.estado !== "PENDIENTE" && p.idCadete === user.id);
 
   return (
@@ -110,19 +103,11 @@ export default function CadetePage() {
       <main className="flex-1 p-3 space-y-5 pb-8">
         {loading && <p className="text-center text-clinical-slate py-8">Cargando...</p>}
 
-        {!loading && mias.length > 0 && (
-          <Seccion titulo={`Mis paradas (${mias.length})`}>
-            {mias.map((p) => (
-              <TarjetaParada key={p.id} parada={p} destacada onClick={() => setSeleccionada(p)} />
-            ))}
-          </Seccion>
-        )}
-
         {!loading && (
           <Seccion titulo={`Disponibles (${disponibles.length})`}>
             {disponibles.length === 0 && <p className="text-sm text-clinical-slate px-1">Sin paradas disponibles por ahora.</p>}
             {disponibles.map((p) => (
-              <TarjetaParada key={p.id} parada={p} onClick={() => tomar(p.id)} accion="Tomar" />
+              <TarjetaParada key={p.id} parada={p} onClick={() => setSeleccionada(p)} />
             ))}
           </Seccion>
         )}
@@ -174,14 +159,10 @@ function Seccion({ titulo, children }: { titulo: string; children: React.ReactNo
 function TarjetaParada({
   parada,
   onClick,
-  accion,
-  destacada,
   atenuada,
 }: {
   parada: Parada;
   onClick?: () => void;
-  accion?: string;
-  destacada?: boolean;
   atenuada?: boolean;
 }) {
   const urgente = parada.muestrasUrgentes.length > 0;
@@ -190,9 +171,9 @@ function TarjetaParada({
       type="button"
       onClick={onClick}
       disabled={!onClick}
-      className={`w-full text-left rounded-xl border p-3 flex items-center justify-between gap-3 ${
-        destacada ? "border-clinical-blue bg-clinical-blue/5" : "border-clinical-border bg-white"
-      } ${atenuada ? "opacity-60" : ""} ${onClick ? "active:scale-[0.99]" : ""}`}
+      className={`w-full text-left rounded-xl border border-clinical-border bg-white p-3 flex items-center justify-between gap-3 ${
+        atenuada ? "opacity-60" : ""
+      } ${onClick ? "active:scale-[0.99]" : ""}`}
     >
       <div className="min-w-0">
         <p className="font-medium text-clinical-blue truncate">{parada.sanatorio.nombre}</p>
@@ -209,7 +190,7 @@ function TarjetaParada({
           </p>
         )}
       </div>
-      {accion && <span className="shrink-0 text-sm font-medium text-clinical-blue">{accion}</span>}
+      {onClick && <span className="shrink-0 text-sm font-medium text-clinical-accent">Marcar</span>}
     </button>
   );
 }
