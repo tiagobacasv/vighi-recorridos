@@ -1,24 +1,37 @@
 @import "tailwindcss";
 
 /*
- * Herramienta interna de uso diario: tema claro fijo (sin seguir
- * prefers-color-scheme) para que sea legible en cualquier condicion,
- * y para no duplicar estilos en dos temas sin necesidad real.
+ * Mismos design tokens que susana-vighi-web (NUEVAWEB), para que esta
+ * app no desentone al lado del sitio nuevo o de WebStock. Valores
+ * copiados 1:1 de src/styles.css de ese repo (paleta "clinical-*").
+ * Herramienta interna de uso diario: tema claro fijo, sin seguir
+ * prefers-color-scheme.
  */
 :root {
-  --background: #f9fafb;
-  --foreground: #171717;
+  --clinical-blue: #431866;
+  --clinical-accent: #a657ed;
+  --clinical-slate: #665e77;
+  --clinical-surface: #f8f5fb;
+  --clinical-border: #e3e9ee;
+  --clinical-destructive: #e62c2c;
+
+  --background: #ffffff;
+  --foreground: var(--clinical-blue);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-clinical-blue: var(--clinical-blue);
+  --color-clinical-accent: var(--clinical-accent);
+  --color-clinical-slate: var(--clinical-slate);
+  --color-clinical-surface: var(--clinical-surface);
+  --color-clinical-border: var(--clinical-border);
+  --color-clinical-destructive: var(--clinical-destructive);
+  --font-sans: var(--font-inter);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }

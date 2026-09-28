@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { apiFetch, getUser, logout } from "@/lib/api";
 import type { EstadoParada, Parada } from "@/lib/types";
 
@@ -18,7 +19,7 @@ const ESTADO_LABEL: Record<EstadoParada, string> = {
 };
 
 const ESTADO_COLOR: Record<EstadoParada, string> = {
-  PENDIENTE: "bg-gray-100 text-gray-700",
+  PENDIENTE: "bg-clinical-surface text-clinical-blue",
   REALIZADA: "bg-green-100 text-green-800",
   NO_REALIZADA: "bg-red-100 text-red-800",
 };
@@ -90,13 +91,16 @@ export default function DashboardPage() {
   const filas = [...paradas].sort((a, b) => a.sanatorio.nombre.localeCompare(b.sanatorio.nombre));
 
   return (
-    <div className="flex-1 flex flex-col">
-      <header className="bg-[#4B1982] text-white px-4 py-3 flex items-center justify-between">
-        <div>
-          <p className="font-semibold leading-tight">Dashboard de recorridos</p>
-          <p className="text-xs text-white/70">{user.nombre || user.username}</p>
+    <div className="flex-1 flex flex-col bg-clinical-surface">
+      <header className="bg-white border-b border-clinical-border px-4 py-2.5 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <Image src="/recorridos/logo.png" alt="CAP Vighi" width={36} height={36} />
+          <div>
+            <p className="font-semibold leading-tight text-clinical-blue text-sm">Dashboard de recorridos</p>
+            <p className="text-xs text-clinical-slate">{user.nombre || user.username}</p>
+          </div>
         </div>
-        <button onClick={logout} className="text-sm underline text-white/80">
+        <button onClick={logout} className="text-sm font-medium text-clinical-accent">
           Salir
         </button>
       </header>
@@ -107,12 +111,12 @@ export default function DashboardPage() {
             type="date"
             value={fecha}
             onChange={(e) => setFecha(e.target.value)}
-            className="rounded-lg border border-gray-300 px-3 py-2 text-sm"
+            className="rounded-lg border border-clinical-border px-3 py-2 text-sm"
           />
           <button
             onClick={generar}
             disabled={generando}
-            className="rounded-lg bg-[#4B1982] text-white text-sm font-medium px-4 py-2 disabled:opacity-50"
+            className="rounded-lg bg-clinical-blue text-white text-sm font-medium px-4 py-2 disabled:opacity-50"
           >
             {generando ? "Generando..." : "Generar paradas del día"}
           </button>
@@ -121,17 +125,17 @@ export default function DashboardPage() {
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
           <Stat label="Pendientes" value={pendientes.length} />
           <Stat label="Realizadas" value={realizadas.length} color="text-green-700" />
-          <Stat label="No realizadas" value={noRealizadas.length} color="text-red-700" />
+          <Stat label="No realizadas" value={noRealizadas.length} color="text-clinical-destructive" />
           <Stat label="Urgentes" value={urgentes.length} color="text-amber-700" />
-          <Stat label="Esperando aviso" value={esperandoAviso.length} color="text-gray-500" />
+          <Stat label="Esperando aviso" value={esperandoAviso.length} color="text-clinical-slate" />
         </div>
 
         {loading ? (
-          <p className="text-center text-gray-400 py-8">Cargando...</p>
+          <p className="text-center text-clinical-slate py-8">Cargando...</p>
         ) : (
-          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <div className="bg-white rounded-xl border border-clinical-border overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-gray-500 text-left">
+              <thead className="bg-clinical-surface text-clinical-slate text-left">
                 <tr>
                   <th className="px-3 py-2 font-medium">Sanatorio</th>
                   <th className="px-3 py-2 font-medium">Cadete</th>
@@ -144,22 +148,22 @@ export default function DashboardPage() {
               </thead>
               <tbody>
                 {filas.map((p) => (
-                  <tr key={p.id} className="border-t border-gray-100">
+                  <tr key={p.id} className="border-t border-clinical-border">
                     <td className="px-3 py-2">
-                      <p className="font-medium text-gray-900">{p.sanatorio.nombre}</p>
-                      {p.sanatorio.zona && <p className="text-xs text-gray-400">{p.sanatorio.zona}</p>}
+                      <p className="font-medium text-clinical-blue">{p.sanatorio.nombre}</p>
+                      {p.sanatorio.zona && <p className="text-xs text-clinical-slate">{p.sanatorio.zona}</p>}
                       {p.estado === "NO_REALIZADA" && (
-                        <p className="text-xs text-red-600">{p.motivoNoRealizada}</p>
+                        <p className="text-xs text-clinical-destructive">{p.motivoNoRealizada}</p>
                       )}
                     </td>
-                    <td className="px-3 py-2 text-gray-600">{p.cadeteNombre ?? "—"}</td>
+                    <td className="px-3 py-2 text-clinical-slate">{p.cadeteNombre ?? "—"}</td>
                     <td className="px-3 py-2">
                       <span className={`text-xs font-medium px-2 py-1 rounded-full ${ESTADO_COLOR[p.estado]}`}>
                         {ESTADO_LABEL[p.estado]}
                       </span>
                     </td>
-                    <td className="px-3 py-2 text-gray-700">{p.estado === "REALIZADA" ? p.cantidadPaps : "—"}</td>
-                    <td className="px-3 py-2 text-gray-700">{p.estado === "REALIZADA" ? p.cantidadBiopsias : "—"}</td>
+                    <td className="px-3 py-2 text-clinical-blue">{p.estado === "REALIZADA" ? p.cantidadPaps : "—"}</td>
+                    <td className="px-3 py-2 text-clinical-blue">{p.estado === "REALIZADA" ? p.cantidadBiopsias : "—"}</td>
                     <td className="px-3 py-2">
                       {p.muestrasUrgentes.length > 0 ? (
                         <span className="text-xs text-amber-700">
@@ -173,7 +177,7 @@ export default function DashboardPage() {
                       {p.sanatorio.tipoVisita === "A_DEMANDA" && p.confirmadaAt === null && p.estado === "PENDIENTE" && (
                         <button
                           onClick={() => confirmarAviso(p.id)}
-                          className="text-xs font-medium text-[#4B1982] underline whitespace-nowrap"
+                          className="text-xs font-medium text-clinical-blue underline whitespace-nowrap"
                         >
                           Confirmar aviso
                         </button>
@@ -183,7 +187,7 @@ export default function DashboardPage() {
                 ))}
                 {filas.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="px-3 py-8 text-center text-gray-400">
+                    <td colSpan={7} className="px-3 py-8 text-center text-clinical-slate">
                       Sin paradas para esta fecha. Probá &quot;Generar paradas del día&quot;.
                     </td>
                   </tr>
@@ -199,9 +203,9 @@ export default function DashboardPage() {
 
 function Stat({ label, value, color }: { label: string; value: number; color?: string }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-3">
-      <p className={`text-2xl font-bold ${color ?? "text-gray-900"}`}>{value}</p>
-      <p className="text-xs text-gray-500">{label}</p>
+    <div className="bg-white rounded-xl border border-clinical-border p-3">
+      <p className={`text-2xl font-bold ${color ?? "text-clinical-blue"}`}>{value}</p>
+      <p className="text-xs text-clinical-slate">{label}</p>
     </div>
   );
 }

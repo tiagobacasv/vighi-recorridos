@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { apiFetch, getUser, logout } from "@/lib/api";
 import type { MotivoNoRealizada, Parada, TipoUrgencia } from "@/lib/types";
 
@@ -92,19 +93,22 @@ export default function CadetePage() {
   const completadas = paradas.filter((p) => p.estado !== "PENDIENTE" && p.idCadete === user.id);
 
   return (
-    <div className="flex-1 flex flex-col">
-      <header className="bg-[#4B1982] text-white px-4 py-3 flex items-center justify-between sticky top-0 z-10">
-        <div>
-          <p className="font-semibold leading-tight">{user.nombre || user.username}</p>
-          <p className="text-xs text-white/70">{hoy()}</p>
+    <div className="flex-1 flex flex-col bg-clinical-surface">
+      <header className="bg-white border-b border-clinical-border px-4 py-2.5 flex items-center justify-between sticky top-0 z-10">
+        <div className="flex items-center gap-2.5">
+          <Image src="/recorridos/logo.png" alt="CAP Vighi" width={36} height={36} />
+          <div>
+            <p className="font-semibold leading-tight text-clinical-blue text-sm">{user.nombre || user.username}</p>
+            <p className="text-xs text-clinical-slate">{hoy()}</p>
+          </div>
         </div>
-        <button onClick={logout} className="text-sm underline text-white/80">
+        <button onClick={logout} className="text-sm font-medium text-clinical-accent">
           Salir
         </button>
       </header>
 
       <main className="flex-1 p-3 space-y-5 pb-8">
-        {loading && <p className="text-center text-gray-400 py-8">Cargando...</p>}
+        {loading && <p className="text-center text-clinical-slate py-8">Cargando...</p>}
 
         {!loading && mias.length > 0 && (
           <Seccion titulo={`Mis paradas (${mias.length})`}>
@@ -116,7 +120,7 @@ export default function CadetePage() {
 
         {!loading && (
           <Seccion titulo={`Disponibles (${disponibles.length})`}>
-            {disponibles.length === 0 && <p className="text-sm text-gray-400 px-1">Sin paradas disponibles por ahora.</p>}
+            {disponibles.length === 0 && <p className="text-sm text-clinical-slate px-1">Sin paradas disponibles por ahora.</p>}
             {disponibles.map((p) => (
               <TarjetaParada key={p.id} parada={p} onClick={() => tomar(p.id)} accion="Tomar" />
             ))}
@@ -161,7 +165,7 @@ export default function CadetePage() {
 function Seccion({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
     <section className="space-y-2">
-      <h2 className="text-sm font-semibold text-gray-500 px-1">{titulo}</h2>
+      <h2 className="text-sm font-semibold text-clinical-slate px-1">{titulo}</h2>
       <div className="space-y-2">{children}</div>
     </section>
   );
@@ -187,17 +191,17 @@ function TarjetaParada({
       onClick={onClick}
       disabled={!onClick}
       className={`w-full text-left rounded-xl border p-3 flex items-center justify-between gap-3 ${
-        destacada ? "border-[#4B1982] bg-[#4B1982]/5" : "border-gray-200 bg-white"
+        destacada ? "border-clinical-blue bg-clinical-blue/5" : "border-clinical-border bg-white"
       } ${atenuada ? "opacity-60" : ""} ${onClick ? "active:scale-[0.99]" : ""}`}
     >
       <div className="min-w-0">
-        <p className="font-medium text-gray-900 truncate">{parada.sanatorio.nombre}</p>
-        {parada.sanatorio.zona && <p className="text-xs text-gray-500">{parada.sanatorio.zona}</p>}
+        <p className="font-medium text-clinical-blue truncate">{parada.sanatorio.nombre}</p>
+        {parada.sanatorio.zona && <p className="text-xs text-clinical-slate">{parada.sanatorio.zona}</p>}
         {parada.sanatorio.infoAdicional && (
-          <p className="text-xs text-gray-400 mt-0.5">ⓘ {parada.sanatorio.infoAdicional}</p>
+          <p className="text-xs text-clinical-slate mt-0.5">ⓘ {parada.sanatorio.infoAdicional}</p>
         )}
         {parada.estado === "NO_REALIZADA" && (
-          <p className="text-xs text-red-600 mt-0.5">No realizada — {parada.motivoNoRealizada}</p>
+          <p className="text-xs text-clinical-destructive mt-0.5">No realizada — {parada.motivoNoRealizada}</p>
         )}
         {parada.estado === "REALIZADA" && (
           <p className="text-xs text-green-700 mt-0.5">
@@ -205,7 +209,7 @@ function TarjetaParada({
           </p>
         )}
       </div>
-      {accion && <span className="shrink-0 text-sm font-medium text-[#4B1982]">{accion}</span>}
+      {accion && <span className="shrink-0 text-sm font-medium text-clinical-blue">{accion}</span>}
     </button>
   );
 }
@@ -236,16 +240,16 @@ function ModalAcciones({
 }) {
   return (
     <Sheet onCerrar={onCerrar}>
-      <h3 className="font-semibold text-gray-900">{parada.sanatorio.nombre}</h3>
-      {parada.sanatorio.infoAdicional && <p className="text-sm text-gray-500">ⓘ {parada.sanatorio.infoAdicional}</p>}
+      <h3 className="font-semibold text-clinical-blue">{parada.sanatorio.nombre}</h3>
+      {parada.sanatorio.infoAdicional && <p className="text-sm text-clinical-slate">ⓘ {parada.sanatorio.infoAdicional}</p>}
       <div className="space-y-2 pt-2">
-        <button onClick={onRealizar} className="w-full rounded-lg bg-[#4B1982] text-white font-medium py-2.5">
+        <button onClick={onRealizar} className="w-full rounded-lg bg-clinical-blue text-white font-medium py-2.5">
           Marcar como realizada
         </button>
-        <button onClick={onNoRealizar} className="w-full rounded-lg border border-gray-300 text-gray-700 font-medium py-2.5">
+        <button onClick={onNoRealizar} className="w-full rounded-lg border border-clinical-border text-clinical-blue font-medium py-2.5">
           No pude ir
         </button>
-        <button onClick={onCerrar} className="w-full text-gray-400 text-sm py-1">
+        <button onClick={onCerrar} className="w-full text-clinical-slate text-sm py-1">
           Cancelar
         </button>
       </div>
@@ -302,7 +306,7 @@ function FormRealizar({
 
   return (
     <Sheet onCerrar={onCerrar}>
-      <h3 className="font-semibold text-gray-900">{parada.sanatorio.nombre}</h3>
+      <h3 className="font-semibold text-clinical-blue">{parada.sanatorio.nombre}</h3>
 
       <div className="grid grid-cols-2 gap-3">
         <Campo label="Cantidad de PAPs">
@@ -312,7 +316,7 @@ function FormRealizar({
             inputMode="numeric"
             value={paps}
             onChange={(e) => setPaps(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base"
+            className="w-full rounded-lg border border-clinical-border px-3 py-2.5 text-base"
           />
         </Campo>
         <Campo label="Cantidad de biopsias">
@@ -322,12 +326,12 @@ function FormRealizar({
             inputMode="numeric"
             value={biopsias}
             onChange={(e) => setBiopsias(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base"
+            className="w-full rounded-lg border border-clinical-border px-3 py-2.5 text-base"
           />
         </Campo>
       </div>
 
-      <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+      <label className="flex items-center gap-2 text-sm font-medium text-clinical-blue">
         <input type="checkbox" checked={tieneUrgente} onChange={(e) => setTieneUrgente(e.target.checked)} className="w-4 h-4" />
         ¿Trajo alguna muestra urgente?
       </label>
@@ -338,7 +342,7 @@ function FormRealizar({
             const marcado = t.id in seleccionUrgencias;
             return (
               <div key={t.id} className="flex items-center gap-2">
-                <label className="flex items-center gap-2 text-sm text-gray-700 flex-1">
+                <label className="flex items-center gap-2 text-sm text-clinical-blue flex-1">
                   <input type="checkbox" checked={marcado} onChange={() => toggleUrgencia(t.id)} className="w-4 h-4" />
                   {t.nombre}
                 </label>
@@ -350,7 +354,7 @@ function FormRealizar({
                     placeholder="Cantidad (si sabe)"
                     value={seleccionUrgencias[t.id]}
                     onChange={(e) => setSeleccionUrgencias((prev) => ({ ...prev, [t.id]: e.target.value }))}
-                    className="w-32 rounded-lg border border-gray-300 px-2 py-1.5 text-sm"
+                    className="w-32 rounded-lg border border-clinical-border px-2 py-1.5 text-sm"
                   />
                 )}
               </div>
@@ -360,13 +364,13 @@ function FormRealizar({
       )}
 
       <div className="flex gap-2 pt-2">
-        <button onClick={onCerrar} className="flex-1 rounded-lg border border-gray-300 text-gray-700 font-medium py-2.5">
+        <button onClick={onCerrar} className="flex-1 rounded-lg border border-clinical-border text-clinical-blue font-medium py-2.5">
           Cancelar
         </button>
         <button
           onClick={guardar}
           disabled={guardando}
-          className="flex-1 rounded-lg bg-[#4B1982] text-white font-medium py-2.5 disabled:opacity-50"
+          className="flex-1 rounded-lg bg-clinical-blue text-white font-medium py-2.5 disabled:opacity-50"
         >
           {guardando ? "Guardando..." : "Guardar"}
         </button>
@@ -399,12 +403,12 @@ function FormNoRealizar({ parada, onCerrar, onGuardado }: { parada: Parada; onCe
 
   return (
     <Sheet onCerrar={onCerrar}>
-      <h3 className="font-semibold text-gray-900">{parada.sanatorio.nombre}</h3>
+      <h3 className="font-semibold text-clinical-blue">{parada.sanatorio.nombre}</h3>
       <Campo label="Motivo">
         <select
           value={motivo}
           onChange={(e) => setMotivo(e.target.value as MotivoNoRealizada)}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base bg-white"
+          className="w-full rounded-lg border border-clinical-border px-3 py-2.5 text-base bg-white"
         >
           {MOTIVOS.map((m) => (
             <option key={m.value} value={m.value}>
@@ -414,7 +418,7 @@ function FormNoRealizar({ parada, onCerrar, onGuardado }: { parada: Parada; onCe
         </select>
       </Campo>
 
-      <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+      <label className="flex items-center gap-2 text-sm font-medium text-clinical-blue">
         <input type="checkbox" checked={reprogramar} onChange={(e) => setReprogramar(e.target.checked)} className="w-4 h-4" />
         Reprogramar para otro día
       </label>
@@ -423,18 +427,18 @@ function FormNoRealizar({ parada, onCerrar, onGuardado }: { parada: Parada; onCe
           type="date"
           value={fecha}
           onChange={(e) => setFecha(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base"
+          className="w-full rounded-lg border border-clinical-border px-3 py-2.5 text-base"
         />
       )}
 
       <div className="flex gap-2 pt-2">
-        <button onClick={onCerrar} className="flex-1 rounded-lg border border-gray-300 text-gray-700 font-medium py-2.5">
+        <button onClick={onCerrar} className="flex-1 rounded-lg border border-clinical-border text-clinical-blue font-medium py-2.5">
           Cancelar
         </button>
         <button
           onClick={guardar}
           disabled={guardando}
-          className="flex-1 rounded-lg bg-[#4B1982] text-white font-medium py-2.5 disabled:opacity-50"
+          className="flex-1 rounded-lg bg-clinical-blue text-white font-medium py-2.5 disabled:opacity-50"
         >
           {guardando ? "Guardando..." : "Guardar"}
         </button>
@@ -446,7 +450,7 @@ function FormNoRealizar({ parada, onCerrar, onGuardado }: { parada: Parada; onCe
 function Campo({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="space-y-1">
-      <label className="text-sm font-medium text-gray-700">{label}</label>
+      <label className="text-sm font-medium text-clinical-blue">{label}</label>
       {children}
     </div>
   );

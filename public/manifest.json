@@ -6,7 +6,7 @@
   "scope": "/recorridos/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#4B1982",
+  "theme_color": "#431866",
   "icons": [
     { "src": "/recorridos/icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "/recorridos/icon-512.png", "sizes": "512x512", "type": "image/png" }
